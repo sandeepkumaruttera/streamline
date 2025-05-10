@@ -9,10 +9,9 @@ import os
 st.set_page_config(layout="wide")
 st.title("🧠 ML Dashboard with Visualizations")
 
-# Try to load the model (if present)
 @st.cache_resource
 def load_model():
-    model_path = "model.pkl"  # You can rename your file accordingly
+    model_path = "model.pkl"
     if os.path.exists(model_path):
         return joblib.load(model_path)
     return None
@@ -30,7 +29,6 @@ def get_predictions(data):
         st.warning("⚠️ No model file found. Upload a model.pkl to enable predictions.")
         return None
 
-# File uploader
 uploaded_file = st.file_uploader("📤 Upload your CSV file", type=["csv"])
 
 if uploaded_file:
@@ -39,8 +37,8 @@ if uploaded_file:
         st.success("✅ File loaded successfully!")
         st.write("### 🔍 Preview of Data", data.head())
 
-        # Handle numeric data
         numeric_cols = data.select_dtypes(include=["int64", "float64"]).columns.tolist()
+        categorical_cols = data.select_dtypes(include=["object", "category"]).columns.tolist()
 
         if numeric_cols:
             st.subheader("📈 Line Chart (first 100 rows)")
@@ -58,10 +56,20 @@ if uploaded_file:
                 sns.histplot(data[col], kde=True, ax=ax)
                 ax.set_title(f"Histogram of {col}")
                 st.pyplot(fig)
+
+            st.subheader("📊 Bar Plots (Top 5 Frequent Categories)")
+            for col in categorical_cols:
+                fig, ax = plt.subplots()
+                top_categories = data[col].value_counts().nlargest(5)
+                sns.barplot(x=top_categories.values, y=top_categories.index, ax=ax)
+                ax.set_title(f"Top 5 Categories in '{col}'")
+                ax.set_xlabel("Count")
+                st.pyplot(fig)
+
         else:
             st.info("No numeric columns found for visualization.")
 
-        # Make predictions
+        # Predictions
         st.subheader("🤖 Predictions")
         predictions = get_predictions(data)
         if predictions is not None:
