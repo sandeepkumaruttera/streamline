@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: streamlit
-        image: joindevops006/joindevops:streamline
+        image: joindevops006/joindevops:machine
         ports:
         - containerPort: 8501
 
