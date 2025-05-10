@@ -66,6 +66,41 @@ if uploaded_file:
                 ax.set_xlabel("Count")
                 st.pyplot(fig)
 
+            st.subheader("📉 Area Chart (first 100 rows)")
+            st.area_chart(data[numeric_cols].head(100))
+
+            st.subheader("📍 Scatter Plot")
+            if len(numeric_cols) >= 2:
+                fig, ax = plt.subplots()
+                sns.scatterplot(x=numeric_cols[0], y=numeric_cols[1], data=data, ax=ax)
+                ax.set_title(f"Scatter Plot: {numeric_cols[0]} vs {numeric_cols[1]}")
+                st.pyplot(fig)
+
+            st.subheader("🧪 Bubble Chart")
+            if len(numeric_cols) >= 3:
+                fig, ax = plt.subplots()
+                sns.scatterplot(x=numeric_cols[0], y=numeric_cols[1], size=numeric_cols[2], data=data, ax=ax, legend=False, sizes=(20, 200))
+                ax.set_title(f"Bubble Chart: {numeric_cols[0]} vs {numeric_cols[1]} sized by {numeric_cols[2]}")
+                st.pyplot(fig)
+
+            st.subheader("🕸 Spider/Radar Chart")
+            if len(numeric_cols) >= 3:
+                from math import pi
+                categories = numeric_cols[:5]
+                radar_data = data[categories].mean()
+                N = len(categories)
+
+                angles = [n / float(N) * 2 * pi for n in range(N)]
+                angles += angles[:1]
+                radar_values = radar_data.tolist()
+                radar_values += radar_values[:1]
+
+                fig, ax = plt.subplots(subplot_kw={'polar': True})
+                plt.xticks(angles[:-1], categories)
+                ax.plot(angles, radar_values)
+                ax.fill(angles, radar_values, alpha=0.25)
+                st.pyplot(fig)
+
         else:
             st.info("No numeric columns found for visualization.")
 
