@@ -37,25 +37,6 @@ if uploaded_file:
         st.success("✅ File loaded successfully!")
         st.write("### 🔍 Preview of Data", data.head())
 
-        # Select ID column automatically or specify
-        id_column = None
-        for col in data.columns:
-            if 'id' in col.lower():
-                id_column = col
-                break
-
-        if id_column:
-            st.subheader("🔎 Search by ID")
-            search_id = st.text_input(f"Enter a value from `{id_column}` to get full details")
-
-            if search_id:
-                matched_rows = data[data[id_column].astype(str) == str(search_id)]
-                if not matched_rows.empty:
-                    st.write("### 🔎 Details for ID:", search_id)
-                    st.dataframe(matched_rows)
-                else:
-                    st.warning("⚠️ No matching ID found.")
-
         numeric_cols = data.select_dtypes(include=["int64", "float64"]).columns.tolist()
         categorical_cols = data.select_dtypes(include=["object", "category"]).columns.tolist()
 
@@ -98,8 +79,7 @@ if uploaded_file:
             st.subheader("🧪 Bubble Chart")
             if len(numeric_cols) >= 3:
                 fig, ax = plt.subplots()
-                sns.scatterplot(x=numeric_cols[0], y=numeric_cols[1], size=numeric_cols[2],
-                                data=data, ax=ax, legend=False, sizes=(20, 200))
+                sns.scatterplot(x=numeric_cols[0], y=numeric_cols[1], size=numeric_cols[2], data=data, ax=ax, legend=False, sizes=(20, 200))
                 ax.set_title(f"Bubble Chart: {numeric_cols[0]} vs {numeric_cols[1]} sized by {numeric_cols[2]}")
                 st.pyplot(fig)
 
@@ -109,6 +89,7 @@ if uploaded_file:
                 categories = numeric_cols[:5]
                 radar_data = data[categories].mean()
                 N = len(categories)
+
                 angles = [n / float(N) * 2 * pi for n in range(N)]
                 angles += angles[:1]
                 radar_values = radar_data.tolist()
@@ -119,9 +100,11 @@ if uploaded_file:
                 ax.plot(angles, radar_values)
                 ax.fill(angles, radar_values, alpha=0.25)
                 st.pyplot(fig)
+
         else:
             st.info("No numeric columns found for visualization.")
 
+        # Predictions
         st.subheader("🤖 Predictions")
         predictions = get_predictions(data)
         if predictions is not None:
